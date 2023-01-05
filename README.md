@@ -6,6 +6,6 @@ This telegram bot helps you to manage your lists of things, e.g. you can have li
 
 This bot currently support the following commands:
 
--   `\create_list` - create new list
--   `\delete_list` - delete existing list
--   `\add_item` - add an item to the list
+-   `/create_list` - create new list
+-   `/delete_list` - delete existing list
+-   `/add_item` - add an item to the list
