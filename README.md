@@ -7,7 +7,6 @@ This telegram bot helps you to manage your lists of things, e.g. you can have li
 This bot currently support the following commands:
 
 -   `/lists` - show all existing lists
--   `/list` - shows all lists and then you can choose specific list to view
 -   `/add_item` - add an item to the list
 -   `/add_list` - create new list
 -   `/remove_list` - delete an existing list
