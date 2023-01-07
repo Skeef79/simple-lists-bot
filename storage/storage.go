@@ -54,7 +54,7 @@ func (s *InMemStorage) GetListById(id uint64) (*List, error) {
 func (s *InMemStorage) CreateList(name string) (*List, error) {
 	newList := &List{
 		Name:  name,
-		ID:    rand.Uint64(),
+		ID:    uint64(rand.Uint32()),
 		Items: make([]string, 0),
 	}
 	s.Lists = append(s.Lists, newList)
