@@ -58,14 +58,14 @@ func (b *bot) Run() {
 			if upd.Message.IsCommand() {
 				key := upd.Message.Command()
 				if cmd, ok := b.commands[commandKey(key)]; ok {
-					go cmd.Action(upd)
+					cmd.Action(upd)
 				} else {
 					fmt.Errorf("Command handler fot %s not found", key)
 				}
 				continue
 			}
 
-			go b.HandleMessage(upd)
+			b.HandleMessage(upd)
 		}
 
 		if upd.CallbackQuery != nil {

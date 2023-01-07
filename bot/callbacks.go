@@ -65,8 +65,8 @@ func marshallCb(ce CallbackEntity) string {
 func unmarshallCb(ce string) CallbackEntity {
 	data := strings.Split(ce, ";")
 
-	cbType, _ := strconv.Atoi(data[0])
-	listID, _ := strconv.Atoi(data[1])
+	cbType, _ := strconv.ParseInt(data[0], 10, 64)
+	listID, _ := strconv.ParseInt(data[1], 10, 64)
 	return CallbackEntity{
 		CbType: CallbackType(cbType),
 		ListID: uint64(listID),
