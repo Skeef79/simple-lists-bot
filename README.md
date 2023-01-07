@@ -9,3 +9,5 @@ This bot currently support the following commands:
 -   `/lists` - show all existing lists
 -   `/add_list` - create new list
 -   `/remove_list` - delete an existing list
+
+You can add or delete items in lists
