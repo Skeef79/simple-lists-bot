@@ -72,8 +72,6 @@ func (b *bot) Run() {
 			data := upd.CallbackData()
 			entity := unmarshallCb(data)
 
-			fmt.Printf("%s\n%d\n%s", entity.ListString, entity.ListID, entity.ListName)
-
 			callback := tgbotapi.NewCallback(upd.CallbackQuery.ID, "")
 			b.apiRequest(callback)
 

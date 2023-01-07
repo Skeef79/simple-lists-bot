@@ -2,6 +2,7 @@ package bot
 
 import (
 	"fmt"
+	"strconv"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"skeef79.com/simple-tg-bot/storage"
@@ -34,10 +35,8 @@ func (b *bot) HelpCmd(upd tgbotapi.Update) {
 	message := `
 This bot currently supports the following commands:
 • /lists -- show all existing lists
-• /add_item -- add an item to the list
 • /add_list -- create new list
 • /remove_list -- delete an existing list
-• /remove_item -- delete an existing item
 `
 
 	reply := tgbotapi.NewMessage(upd.Message.Chat.ID, message)
@@ -61,10 +60,8 @@ func (b *bot) getListsKeyboard(ID int64) tgbotapi.InlineKeyboardMarkup {
 	rows := make([][]tgbotapi.InlineKeyboardButton, 0, len(lists))
 	for _, list := range lists {
 		button := tgbotapi.NewInlineKeyboardButtonData(list.Name, marshallCb(CallbackEntity{
-			CbType:     Lists,
-			ListString: createListMessage(list),
-			ListID:     list.ID,
-			ListName:   list.Name,
+			CbType: Lists,
+			ListID: list.ID,
 		}))
 		rows = append(rows, tgbotapi.NewInlineKeyboardRow(button))
 	}
@@ -154,7 +151,7 @@ func (b *bot) HandleMessage(upd tgbotapi.Update) {
 				fmt.Errorf("failed to send message")
 			}
 		case DeleteItemMessage:
-			message := "Type the name of an item to delete"
+			message := "Type the number of an item to delete"
 			reply := tgbotapi.NewMessage(ID, message)
 			b.userStates[ID] = user.DeleteItemState
 			reply.ReplyMarkup = tgbotapi.NewRemoveKeyboard(true)
@@ -163,6 +160,14 @@ func (b *bot) HandleMessage(upd tgbotapi.Update) {
 				fmt.Errorf("failed to send message")
 			}
 		case BackMessage:
+			reply := tgbotapi.NewMessage(ID, "Gettings back to the lists...")
+			b.userStates[ID] = user.ShowListsState
+			reply.ReplyMarkup = tgbotapi.NewRemoveKeyboard(true)
+
+			if err := b.apiRequest(reply); err != nil {
+				fmt.Errorf("failed to send message")
+			}
+
 			b.ShowListsCmd(upd)
 
 		default:
@@ -195,6 +200,59 @@ func (b *bot) HandleMessage(upd tgbotapi.Update) {
 			fmt.Errorf("failed to send api request inside lists callback")
 		}
 		b.userStates[ID] = user.ListEditState
+	}
+
+	if state == user.DeleteItemState {
+		listID := b.userStatesInfo[ID]
+		list, _ := b.users[ID].GetListById(listID)
+
+		if len(list.Items) == 0 {
+			message := "Can't delete item when list is empty"
+			reply := tgbotapi.NewMessage(ID, message)
+			if err := b.apiRequest(reply); err != nil {
+				fmt.Errorf("failed to send api request to delete an item")
+			}
+
+			reply = tgbotapi.NewMessage(ID, createListMessage(list))
+			reply.ReplyMarkup = getListKeyboard()
+			reply.ParseMode = "html"
+			if err := b.apiRequest(reply); err != nil {
+				fmt.Errorf("failed to send api request inside lists callback")
+			}
+			b.userStates[ID] = user.ListEditState
+			return
+		}
+
+		if itemIndex, err := strconv.Atoi(text); err == nil && itemIndex >= 1 && itemIndex <= len(list.Items) {
+			err := b.users[ID].DeleteItemByIndex(listID, itemIndex-1)
+			if err != nil {
+				fmt.Errorf("%s", err)
+			}
+
+			reply := tgbotapi.NewMessage(ID, createListMessage(list))
+			reply.ReplyMarkup = getListKeyboard()
+			reply.ParseMode = "html"
+			if err := b.apiRequest(reply); err != nil {
+				fmt.Errorf("failed to send api request inside lists callback")
+			}
+			b.userStates[ID] = user.ListEditState
+			return
+		} else {
+			message := fmt.Sprintf("Item number should be from 1 to %d", len(list.Items))
+			reply := tgbotapi.NewMessage(ID, message)
+			if err := b.apiRequest(reply); err != nil {
+				fmt.Errorf("failed to send api request to delete an item")
+			}
+			reply = tgbotapi.NewMessage(ID, createListMessage(list))
+			reply.ReplyMarkup = getListKeyboard()
+			reply.ParseMode = "html"
+			if err := b.apiRequest(reply); err != nil {
+				fmt.Errorf("failed to send api request inside lists callback")
+			}
+			b.userStates[ID] = user.ListEditState
+			return
+		}
+
 	}
 
 }

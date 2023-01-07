@@ -13,14 +13,11 @@ type CallbackType int
 
 const (
 	Lists CallbackType = iota
-	List
 )
 
 type CallbackEntity struct {
-	CbType     CallbackType
-	ListString string
-	ListID     uint64
-	ListName   string
+	CbType CallbackType
+	ListID uint64
 }
 
 type CallbackFn func(upd tgbotapi.Update, entity CallbackEntity)
@@ -28,7 +25,6 @@ type CallbackFn func(upd tgbotapi.Update, entity CallbackEntity)
 func (b *bot) InitCallbacks() {
 	b.callbacks = map[CallbackType]CallbackFn{
 		Lists: b.ListsCallback,
-		List:  b.ListCallback,
 	}
 }
 
@@ -44,7 +40,10 @@ func getListKeyboard() tgbotapi.ReplyKeyboardMarkup {
 
 func (b *bot) ListsCallback(upd tgbotapi.Update, entity CallbackEntity) {
 
-	reply := tgbotapi.NewMessage(upd.CallbackQuery.Message.Chat.ID, entity.ListString)
+	listID := entity.ListID
+	list, _ := b.users[upd.CallbackQuery.Message.Chat.ID].GetListById(listID)
+
+	reply := tgbotapi.NewMessage(upd.CallbackQuery.Message.Chat.ID, createListMessage(list))
 	b.userStatesInfo[upd.CallbackQuery.Message.Chat.ID] = entity.ListID
 
 	reply.ReplyMarkup = getListKeyboard()
@@ -55,17 +54,11 @@ func (b *bot) ListsCallback(upd tgbotapi.Update, entity CallbackEntity) {
 	b.userStates[upd.CallbackQuery.Message.Chat.ID] = user.ListEditState
 }
 
-func (b *bot) ListCallback(upd tgbotapi.Update, entity CallbackEntity) {
-
-}
-
 func marshallCb(ce CallbackEntity) string {
 	return fmt.Sprintf(
-		"%d;%s;%d;%s",
+		"%d;%d",
 		ce.CbType,
-		ce.ListString,
 		ce.ListID,
-		ce.ListName,
 	)
 }
 
@@ -73,11 +66,9 @@ func unmarshallCb(ce string) CallbackEntity {
 	data := strings.Split(ce, ";")
 
 	cbType, _ := strconv.Atoi(data[0])
-	listID, _ := strconv.Atoi(data[2])
+	listID, _ := strconv.Atoi(data[1])
 	return CallbackEntity{
-		CbType:     CallbackType(cbType),
-		ListString: data[1],
-		ListID:     uint64(listID),
-		ListName:   data[3],
+		CbType: CallbackType(cbType),
+		ListID: uint64(listID),
 	}
 }

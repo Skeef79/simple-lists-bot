@@ -21,6 +21,7 @@ type Storage interface {
 	DeleteList(string) error
 	AddItemByListName(string, string) error
 	AddItemByListId(uint64, string) error
+	DeleteItemByIndex(uint64, int) error
 }
 
 type InMemStorage struct {
@@ -63,7 +64,7 @@ func (s *InMemStorage) CreateList(name string) (*List, error) {
 func (s *InMemStorage) DeleteList(name string) error {
 	for i, list := range s.Lists {
 		if list.Name == name {
-			s.Lists = slices.Delete(s.Lists, i, i)
+			s.Lists = slices.Delete(s.Lists, i, i+1)
 			return nil
 		}
 	}
@@ -86,6 +87,16 @@ func (s *InMemStorage) AddItemByListId(listID uint64, itemName string) error {
 	}
 	list.Items = append(list.Items, itemName)
 	return nil
+}
+
+func (s *InMemStorage) DeleteItemByIndex(listID uint64, index int) error {
+	for _, list := range s.Lists {
+		if list.ID == listID {
+			list.Items = slices.Delete(list.Items, index, index+1)
+			return nil
+		}
+	}
+	return fmt.Errorf("not found")
 }
 
 func NewInMemStorage(name string) Storage {
