@@ -1,4 +1,4 @@
-module skeef79.com/simple-tg-bot
+module github.com/skeef79/simple-lists-bot
 
 go 1.19
 

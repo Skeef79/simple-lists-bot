@@ -1,7 +1,7 @@
 package main
 
 import (
-	listsbot "skeef79.com/simple-tg-bot/bot"
+	listsbot "github.com/skeef79/simple-lists-bot/bot"
 )
 
 func main() {

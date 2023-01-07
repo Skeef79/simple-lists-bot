@@ -1,7 +1,7 @@
 package user
 
 import (
-	storage "skeef79.com/simple-tg-bot/storage"
+	storage "github.com/skeef79/simple-lists-bot/storage"
 )
 
 const (

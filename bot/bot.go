@@ -6,7 +6,7 @@ import (
 	"os"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	user "skeef79.com/simple-tg-bot/user"
+	user "github.com/skeef79/simple-lists-bot/user"
 )
 
 type bot struct {

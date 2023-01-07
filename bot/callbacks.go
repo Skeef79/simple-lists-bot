@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"skeef79.com/simple-tg-bot/user"
+	"github.com/skeef79/simple-lists-bot/user"
 )
 
 type CallbackType int
