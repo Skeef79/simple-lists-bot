@@ -231,6 +231,11 @@ func (b *bot) HandleMessage(upd tgbotapi.Update) {
 				fmt.Errorf("%s", err)
 			}
 
+			list, err = b.users[ID].GetListById(listID)
+			if err != nil {
+				fmt.Errorf("%s", err)
+			}
+
 			reply := tgbotapi.NewMessage(ID, createListMessage(list))
 			reply.ReplyMarkup = getListKeyboard()
 			reply.ParseMode = "html"
