@@ -200,6 +200,12 @@ func (s *DbStorage) DeleteItemByIndex(listID uint64, index int) error {
 	if err != nil {
 		return err
 	}
+
+	list.Items, list.ItemIDs, err = getListItems(s.DB, listID)
+	if err != nil {
+		return err
+	}
+
 	itemID := list.ItemIDs[index]
 
 	if err := s.DB.Delete(ListItems{}, itemID).Error; err != nil {
