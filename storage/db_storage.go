@@ -59,7 +59,7 @@ func getAllLists(db *gorm.DB) ([]*List, error) {
 
 func getListByID(db *gorm.DB, id uint64) (*List, error) {
 	var row Lists
-	if err := db.First(&row).Error; err != nil {
+	if err := db.First(&row, id).Error; err != nil {
 		return nil, err
 	}
 	if row.ID == 0 {
@@ -96,7 +96,7 @@ func getListItems(db *gorm.DB, id uint64) ([]string, []uint64, error) {
 		return nil, nil, fmt.Errorf("list not found")
 	}
 
-	var rows []*ListItems
+	rows := make([]*ListItems, 0)
 	if err := db.Where("list_id = ?", id).Find(&rows).Error; err != nil {
 		return nil, nil, err
 	}
