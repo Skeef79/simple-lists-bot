@@ -89,7 +89,7 @@ func getListByName(db *gorm.DB, name string) (*List, error) {
 
 func getListItems(db *gorm.DB, id uint64) ([]string, []uint64, error) {
 	var row Lists
-	if err := db.First(&row).Error; err != nil {
+	if err := db.First(&row, id).Error; err != nil {
 		return nil, nil, err
 	}
 	if row.ID == 0 {
