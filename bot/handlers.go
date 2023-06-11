@@ -51,7 +51,8 @@ func (b *bot) getListsKeyboard(ID int64) tgbotapi.InlineKeyboardMarkup {
 	_, ok := b.users[ID]
 	if !ok {
 		b.users[ID] = user.User{
-			Storage: storage.NewInMemStorage(fmt.Sprintf("%d", ID)),
+			//Storage: storage.NewInMemStorage(fmt.Sprintf("%d", ID)),
+			Storage: storage.NewDbStorage(),
 		}
 	}
 
@@ -113,7 +114,8 @@ func (b *bot) HandleMessage(upd tgbotapi.Update) {
 		_, ok := b.users[ID]
 		if !ok {
 			b.users[ID] = user.User{
-				Storage: storage.NewInMemStorage(fmt.Sprintf("%d", ID)),
+				//Storage: storage.NewInMemStorage(fmt.Sprintf("%d", ID)),
+				Storage: storage.NewDbStorage(),
 			}
 		}
 		b.users[ID].CreateList(text)
