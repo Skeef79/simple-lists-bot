@@ -3,6 +3,7 @@ package storage
 import (
 	"fmt"
 	"log"
+	"os"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -26,7 +27,7 @@ type Lists struct {
 //TODO: pass db config here or load it from config.json
 
 func NewDbStorage() Storage {
-	dsn := fmt.Sprintf("%s:%s@tcp(127.0.0.1:3306)/lists?charset=utf8mb4&parseTime=True&loc=Local")
+	dsn := fmt.Sprintf("%s:%s@tcp(127.0.0.1:3306)/lists?charset=utf8mb4&parseTime=True&loc=Local", os.Getenv("MYSQL_LISTS_BOT_USER"), os.Getenv("MYSQL_LISTS_BOT_PASSWORD"))
 	s := &DbStorage{}
 	var err error
 	s.DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
