@@ -21,8 +21,9 @@ type ListItems struct {
 }
 
 type Lists struct {
-	ID   uint64 `gorm:"column:id"`
-	Name string `gorm:"column:name"`
+	ID     uint64 `gorm:"column:id"`
+	Name   string `gorm:"column:name"`
+	ChatID int64  `gorm:"column:chat_id"`
 }
 
 //TODO: pass db config here or load it from config.json
