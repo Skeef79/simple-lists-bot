@@ -59,8 +59,8 @@ func (b *bot) getListsKeyboard(ID int64) tgbotapi.InlineKeyboardMarkup {
 	lists, _ := b.users[ID].GetAllLists()
 
 	rows := make([][]tgbotapi.InlineKeyboardButton, 0, len(lists))
-	for _, list := range lists {
-		button := tgbotapi.NewInlineKeyboardButtonData(list.Name, marshallCb(CallbackEntity{
+	for i, list := range lists {
+		button := tgbotapi.NewInlineKeyboardButtonData(fmt.Sprintf("%d) %s", i, list.Name), marshallCb(CallbackEntity{
 			CbType: Lists,
 			ListID: list.ID,
 		}))
@@ -101,6 +101,18 @@ func (b *bot) AddListCmd(upd tgbotapi.Update) {
 	}
 }
 
+func (b *bot) DeleteListCmd(upd tgbotapi.Update) {
+	message := "Type the number of a list to delete\n"
+	reply := tgbotapi.NewMessage(upd.Message.Chat.ID, message)
+	b.userStates[upd.Message.Chat.ID] = user.CreateListState
+
+	if err := b.apiRequest(reply); err != nil {
+		log.Fatal("failed to send add list")
+	}
+
+	b.userStates[upd.Message.Chat.ID] = user.DeleteListState
+}
+
 func (b *bot) HandleMessage(upd tgbotapi.Update) {
 	ID := upd.Message.Chat.ID
 	state, ok := b.userStates[ID]
@@ -138,6 +150,55 @@ func (b *bot) HandleMessage(upd tgbotapi.Update) {
 			log.Fatal("failed to send show list message")
 		}
 		return
+	}
+
+	if state == user.DeleteListState {
+		lists, err := b.users[ID].GetAllLists()
+		if err != nil {
+			log.Fatalf("%s", err)
+		}
+
+		if len(lists) == 0 {
+			message := "Can't delete list when there are no lists"
+			reply := tgbotapi.NewMessage(ID, message)
+			if err := b.apiRequest(reply); err != nil {
+				log.Fatal("failed to send api request to delete list")
+			}
+
+			b.ShowListsCmd(upd)
+			b.userStates[ID] = user.ShowListsState
+			return
+		}
+
+		if itemIndex, err := strconv.Atoi(text); err == nil && itemIndex >= 1 && itemIndex <= len(lists) {
+			err := b.users[ID].DeleteList(lists[itemIndex-1].Name)
+			if err != nil {
+				log.Fatalf("%s", err)
+			}
+
+			if err != nil {
+				log.Fatalf("%s", err)
+			}
+
+			reply := tgbotapi.NewMessage(ID, fmt.Sprintf("List %s successfully deleted", lists[itemIndex-1].Name))
+			if err := b.apiRequest(reply); err != nil {
+				log.Fatal("failed to send api request to delete list")
+			}
+
+			b.ShowListsCmd(upd)
+			b.userStates[ID] = user.ShowListsState
+			return
+		} else {
+			message := fmt.Sprintf("List number should be from 1 to %d", len(lists))
+			reply := tgbotapi.NewMessage(ID, message)
+			if err := b.apiRequest(reply); err != nil {
+				log.Fatal("failed to send api request to delete list")
+			}
+
+			b.ShowListsCmd(upd)
+			b.userStates[ID] = user.ShowListsState
+			return
+		}
 	}
 
 	if state == user.ListEditState {

@@ -11,6 +11,7 @@ const (
 	ShowListsState
 	AddItemState
 	DeleteItemState
+	DeleteListState
 )
 
 type User struct {

@@ -40,7 +40,7 @@ func getListKeyboard() tgbotapi.ReplyKeyboardMarkup {
 }
 
 func (b *bot) ListsCallback(upd tgbotapi.Update, entity CallbackEntity) {
-
+	userID := upd.CallbackQuery.Message.Chat.ID
 	listID := entity.ListID
 	list, _ := b.users[upd.CallbackQuery.Message.Chat.ID].GetListById(listID)
 
@@ -52,7 +52,7 @@ func (b *bot) ListsCallback(upd tgbotapi.Update, entity CallbackEntity) {
 	if err := b.apiRequest(reply); err != nil {
 		log.Fatalf("failed to send api request inside lists callback")
 	}
-	b.userStates[upd.CallbackQuery.Message.Chat.ID] = user.ListEditState
+	b.userStates[userID] = user.ListEditState
 }
 
 func marshallCb(ce CallbackEntity) string {

@@ -11,12 +11,12 @@ type commandEntity struct {
 }
 
 const (
-	StartCmdKey     = commandKey("start")
-	HelpCmdKey      = commandKey("help")
-	ShowListsCmdKey = commandKey("lists")
-	AddListCmdKey   = commandKey("add_list")
+	StartCmdKey      = commandKey("start")
+	HelpCmdKey       = commandKey("help")
+	ShowListsCmdKey  = commandKey("lists")
+	AddListCmdKey    = commandKey("add_list")
+	DeleteListCmdKey = commandKey("delete_list")
 	// AddItemCmdKey    = commandKey("add_item")
-	// RemoveListCmdKey = commandKey("remove_list")
 	// RemoveItemCmdKey = commandKey("remove_item")
 )
 
@@ -41,6 +41,11 @@ func (b *bot) initCommands() error {
 			Key:    AddListCmdKey,
 			Desc:   "Add new list",
 			Action: b.AddListCmd,
+		},
+		{
+			Key:    DeleteListCmdKey,
+			Desc:   "Delete list",
+			Action: b.DeleteListCmd,
 		},
 	}
 
