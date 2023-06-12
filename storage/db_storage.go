@@ -141,9 +141,10 @@ func (s *DbStorage) GetListById(id uint64) (*List, error) {
 	return list, nil
 }
 
-func newList(name string) Lists {
+func newList(name string, chatID int64) Lists {
 	return Lists{
-		Name: name,
+		Name:   name,
+		ChatID: chatID,
 	}
 }
 
@@ -155,7 +156,7 @@ func newListItem(listID uint64, itemName string) ListItems {
 }
 
 func (s *DbStorage) CreateList(name string) (*List, error) {
-	list := newList(name)
+	list := newList(name, s.ChatID)
 	if err := s.DB.Create(&list).Error; err != nil {
 		return nil, err
 	}
