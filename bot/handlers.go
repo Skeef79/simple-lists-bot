@@ -60,7 +60,7 @@ func (b *bot) getListsKeyboard(ID int64) tgbotapi.InlineKeyboardMarkup {
 
 	rows := make([][]tgbotapi.InlineKeyboardButton, 0, len(lists))
 	for i, list := range lists {
-		button := tgbotapi.NewInlineKeyboardButtonData(fmt.Sprintf("%d) %s", i, list.Name), marshallCb(CallbackEntity{
+		button := tgbotapi.NewInlineKeyboardButtonData(fmt.Sprintf("%d) %s", i+1, list.Name), marshallCb(CallbackEntity{
 			CbType: Lists,
 			ListID: list.ID,
 		}))
@@ -153,6 +153,12 @@ func (b *bot) HandleMessage(upd tgbotapi.Update) {
 	}
 
 	if state == user.DeleteListState {
+		_, ok := b.users[ID]
+		if !ok {
+			b.users[ID] = user.User{
+				Storage: storage.NewDbStorage(),
+			}
+		}
 		lists, err := b.users[ID].GetAllLists()
 		if err != nil {
 			log.Fatalf("%s", err)
