@@ -1,7 +1,6 @@
 package bot
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -60,7 +59,7 @@ func (b *bot) Run() {
 				if cmd, ok := b.commands[commandKey(key)]; ok {
 					cmd.Action(upd)
 				} else {
-					fmt.Errorf("Command handler fot %s not found", key)
+					log.Fatalf("Command handler for %s not found", key)
 				}
 				continue
 			}

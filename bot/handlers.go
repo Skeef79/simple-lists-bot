@@ -2,6 +2,7 @@ package bot
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -25,7 +26,7 @@ Use /help to see available commands
 	reply.ParseMode = "html"
 
 	if err := b.apiRequest(reply); err != nil {
-		fmt.Errorf("failed to send start message")
+		log.Fatal("failed to send start message")
 	}
 
 	b.userStates[upd.Message.Chat.ID] = user.EmptyState
@@ -41,7 +42,7 @@ This bot currently supports the following commands:
 
 	reply := tgbotapi.NewMessage(upd.Message.Chat.ID, message)
 	if err := b.apiRequest(reply); err != nil {
-		fmt.Errorf("failed to send help message")
+		log.Fatal("failed to send help message")
 	}
 
 	b.userStates[upd.Message.Chat.ID] = user.EmptyState
@@ -51,7 +52,6 @@ func (b *bot) getListsKeyboard(ID int64) tgbotapi.InlineKeyboardMarkup {
 	_, ok := b.users[ID]
 	if !ok {
 		b.users[ID] = user.User{
-			//Storage: storage.NewInMemStorage(fmt.Sprintf("%d", ID)),
 			Storage: storage.NewDbStorage(),
 		}
 	}
@@ -85,7 +85,7 @@ func (b *bot) ShowListsCmd(upd tgbotapi.Update) {
 	reply.ParseMode = "html"
 
 	if err := b.apiRequest(reply); err != nil {
-		fmt.Errorf("failed to send show lists message")
+		log.Fatal("failed to send show lists message")
 	}
 
 	b.userStates[upd.Message.Chat.ID] = user.ShowListsState
@@ -97,7 +97,7 @@ func (b *bot) AddListCmd(upd tgbotapi.Update) {
 	b.userStates[upd.Message.Chat.ID] = user.CreateListState
 
 	if err := b.apiRequest(reply); err != nil {
-		fmt.Errorf("failed to send add list")
+		log.Fatal("failed to send add list")
 	}
 }
 
@@ -114,7 +114,6 @@ func (b *bot) HandleMessage(upd tgbotapi.Update) {
 		_, ok := b.users[ID]
 		if !ok {
 			b.users[ID] = user.User{
-				//Storage: storage.NewInMemStorage(fmt.Sprintf("%d", ID)),
 				Storage: storage.NewDbStorage(),
 			}
 		}
@@ -125,7 +124,7 @@ func (b *bot) HandleMessage(upd tgbotapi.Update) {
 		reply := tgbotapi.NewMessage(ID, message)
 
 		if err := b.apiRequest(reply); err != nil {
-			fmt.Errorf("failed to send create list")
+			log.Fatal("failed to send create list")
 		}
 
 		return
@@ -136,7 +135,7 @@ func (b *bot) HandleMessage(upd tgbotapi.Update) {
 		reply := tgbotapi.NewMessage(ID, message)
 
 		if err := b.apiRequest(reply); err != nil {
-			fmt.Errorf("failed to send show list message")
+			log.Fatal("failed to send show list message")
 		}
 		return
 	}
@@ -150,7 +149,7 @@ func (b *bot) HandleMessage(upd tgbotapi.Update) {
 			reply.ReplyMarkup = tgbotapi.NewRemoveKeyboard(true)
 
 			if err := b.apiRequest(reply); err != nil {
-				fmt.Errorf("failed to send message")
+				log.Fatal("failed to send message")
 			}
 		case DeleteItemMessage:
 			message := "Type the number of an item to delete"
@@ -159,7 +158,7 @@ func (b *bot) HandleMessage(upd tgbotapi.Update) {
 			reply.ReplyMarkup = tgbotapi.NewRemoveKeyboard(true)
 
 			if err := b.apiRequest(reply); err != nil {
-				fmt.Errorf("failed to send message")
+				log.Fatal("failed to send message")
 			}
 		case BackMessage:
 			reply := tgbotapi.NewMessage(ID, "Gettings back to the lists...")
@@ -167,7 +166,7 @@ func (b *bot) HandleMessage(upd tgbotapi.Update) {
 			reply.ReplyMarkup = tgbotapi.NewRemoveKeyboard(true)
 
 			if err := b.apiRequest(reply); err != nil {
-				fmt.Errorf("failed to send message")
+				log.Fatal("failed to send message")
 			}
 
 			b.ShowListsCmd(upd)
@@ -178,7 +177,7 @@ func (b *bot) HandleMessage(upd tgbotapi.Update) {
 			reply.ReplyMarkup = getListKeyboard()
 			reply.ParseMode = "html"
 			if err := b.apiRequest(reply); err != nil {
-				fmt.Errorf("failed to send message")
+				log.Fatal("failed to send message")
 			}
 		}
 		return
@@ -199,7 +198,7 @@ func (b *bot) HandleMessage(upd tgbotapi.Update) {
 		reply.ReplyMarkup = getListKeyboard()
 		reply.ParseMode = "html"
 		if err := b.apiRequest(reply); err != nil {
-			fmt.Errorf("failed to send api request inside lists callback")
+			log.Fatal("failed to send api request inside lists callback")
 		}
 		b.userStates[ID] = user.ListEditState
 	}
@@ -212,14 +211,14 @@ func (b *bot) HandleMessage(upd tgbotapi.Update) {
 			message := "Can't delete item when list is empty"
 			reply := tgbotapi.NewMessage(ID, message)
 			if err := b.apiRequest(reply); err != nil {
-				fmt.Errorf("failed to send api request to delete an item")
+				log.Fatal("failed to send api request to delete an item")
 			}
 
 			reply = tgbotapi.NewMessage(ID, createListMessage(list))
 			reply.ReplyMarkup = getListKeyboard()
 			reply.ParseMode = "html"
 			if err := b.apiRequest(reply); err != nil {
-				fmt.Errorf("failed to send api request inside lists callback")
+				log.Fatal("failed to send api request inside lists callback")
 			}
 			b.userStates[ID] = user.ListEditState
 			return
@@ -228,19 +227,19 @@ func (b *bot) HandleMessage(upd tgbotapi.Update) {
 		if itemIndex, err := strconv.Atoi(text); err == nil && itemIndex >= 1 && itemIndex <= len(list.Items) {
 			err := b.users[ID].DeleteItemByIndex(listID, itemIndex-1)
 			if err != nil {
-				fmt.Errorf("%s", err)
+				log.Fatalf("%s", err)
 			}
 
 			list, err = b.users[ID].GetListById(listID)
 			if err != nil {
-				fmt.Errorf("%s", err)
+				log.Fatalf("%s", err)
 			}
 
 			reply := tgbotapi.NewMessage(ID, createListMessage(list))
 			reply.ReplyMarkup = getListKeyboard()
 			reply.ParseMode = "html"
 			if err := b.apiRequest(reply); err != nil {
-				fmt.Errorf("failed to send api request inside lists callback")
+				log.Fatal("failed to send api request inside lists callback")
 			}
 			b.userStates[ID] = user.ListEditState
 			return
@@ -248,13 +247,13 @@ func (b *bot) HandleMessage(upd tgbotapi.Update) {
 			message := fmt.Sprintf("Item number should be from 1 to %d", len(list.Items))
 			reply := tgbotapi.NewMessage(ID, message)
 			if err := b.apiRequest(reply); err != nil {
-				fmt.Errorf("failed to send api request to delete an item")
+				log.Fatal("failed to send api request to delete an item")
 			}
 			reply = tgbotapi.NewMessage(ID, createListMessage(list))
 			reply.ReplyMarkup = getListKeyboard()
 			reply.ParseMode = "html"
 			if err := b.apiRequest(reply); err != nil {
-				fmt.Errorf("failed to send api request inside lists callback")
+				log.Fatal("failed to send api request inside lists callback")
 			}
 			b.userStates[ID] = user.ListEditState
 			return

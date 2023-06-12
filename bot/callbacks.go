@@ -2,6 +2,7 @@ package bot
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 
@@ -49,7 +50,7 @@ func (b *bot) ListsCallback(upd tgbotapi.Update, entity CallbackEntity) {
 	reply.ReplyMarkup = getListKeyboard()
 	reply.ParseMode = "html"
 	if err := b.apiRequest(reply); err != nil {
-		fmt.Errorf("failed to send api request inside lists callback")
+		log.Fatalf("failed to send api request inside lists callback")
 	}
 	b.userStates[upd.CallbackQuery.Message.Chat.ID] = user.ListEditState
 }
