@@ -10,8 +10,11 @@ CREATE TABLE list_items (
 
 CREATE TABLE lists (
     id INT AUTO_INCREMENT NOT NULL,
+    chat_id BIGINT NOT NULL,
     name VARCHAR(255) NOT NULL,
     PRIMARY KEY (`id`)
 );
 
 CREATE UNIQUE INDEX list_id_to_id ON list_items (list_id, id);
+
+CREATE UNIQUE INDEX chat_id_to_lists ON lists(chat_id, id);

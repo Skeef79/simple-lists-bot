@@ -10,7 +10,8 @@ import (
 )
 
 type DbStorage struct {
-	DB *gorm.DB
+	DB     *gorm.DB
+	ChatID int64
 }
 
 type ListItems struct {
@@ -26,7 +27,7 @@ type Lists struct {
 
 //TODO: pass db config here or load it from config.json
 
-func NewDbStorage() Storage {
+func NewDbStorage(chatID int64) Storage {
 	dsn := fmt.Sprintf("%s:%s@tcp(127.0.0.1:3306)/lists?charset=utf8mb4&parseTime=True&loc=Local", os.Getenv("MYSQL_LISTS_BOT_USER"), os.Getenv("MYSQL_LISTS_BOT_PASSWORD"))
 	s := &DbStorage{}
 	var err error
@@ -36,13 +37,14 @@ func NewDbStorage() Storage {
 		log.Fatal(err)
 	}
 
+	s.ChatID = chatID
 	log.Println("Successfully connected to mysql db")
 	return s
 }
 
-func getAllLists(db *gorm.DB) ([]*List, error) {
+func getAllLists(db *gorm.DB, chatID int64) ([]*List, error) {
 	var rows []*Lists
-	if err := db.Find(&rows).Error; err != nil {
+	if err := db.Where("chat_id = ?", chatID).Find(&rows).Error; err != nil {
 		return nil, err
 	}
 	res := make([]*List, 0, len(rows))
@@ -111,7 +113,7 @@ func getListItems(db *gorm.DB, id uint64) ([]string, []uint64, error) {
 }
 
 func (s *DbStorage) GetAllLists() ([]*List, error) {
-	return getAllLists(s.DB)
+	return getAllLists(s.DB, s.ChatID)
 }
 
 func (s *DbStorage) GetListByName(name string) (*List, error) {
@@ -163,8 +165,8 @@ func (s *DbStorage) CreateList(name string) (*List, error) {
 	return res, nil
 }
 
-func (s *DbStorage) DeleteList(name string) error {
-	list, err := getListByName(s.DB, name)
+func (s *DbStorage) DeleteList(id uint64) error {
+	list, err := getListByID(s.DB, id)
 	if err != nil {
 		return err
 	}

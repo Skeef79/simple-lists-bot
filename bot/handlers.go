@@ -52,7 +52,7 @@ func (b *bot) getListsKeyboard(ID int64) tgbotapi.InlineKeyboardMarkup {
 	_, ok := b.users[ID]
 	if !ok {
 		b.users[ID] = user.User{
-			Storage: storage.NewDbStorage(),
+			Storage: storage.NewDbStorage(ID),
 		}
 	}
 
@@ -126,7 +126,7 @@ func (b *bot) HandleMessage(upd tgbotapi.Update) {
 		_, ok := b.users[ID]
 		if !ok {
 			b.users[ID] = user.User{
-				Storage: storage.NewDbStorage(),
+				Storage: storage.NewDbStorage(ID),
 			}
 		}
 		b.users[ID].CreateList(text)
@@ -156,7 +156,7 @@ func (b *bot) HandleMessage(upd tgbotapi.Update) {
 		_, ok := b.users[ID]
 		if !ok {
 			b.users[ID] = user.User{
-				Storage: storage.NewDbStorage(),
+				Storage: storage.NewDbStorage(ID),
 			}
 		}
 		lists, err := b.users[ID].GetAllLists()
@@ -177,7 +177,7 @@ func (b *bot) HandleMessage(upd tgbotapi.Update) {
 		}
 
 		if itemIndex, err := strconv.Atoi(text); err == nil && itemIndex >= 1 && itemIndex <= len(lists) {
-			err := b.users[ID].DeleteList(lists[itemIndex-1].Name)
+			err := b.users[ID].DeleteList(lists[itemIndex-1].ID)
 			if err != nil {
 				log.Fatalf("%s", err)
 			}

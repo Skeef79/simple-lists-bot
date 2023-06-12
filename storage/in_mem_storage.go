@@ -44,9 +44,9 @@ func (s *InMemStorage) CreateList(name string) (*List, error) {
 	return newList, nil
 }
 
-func (s *InMemStorage) DeleteList(name string) error {
+func (s *InMemStorage) DeleteList(id uint64) error {
 	for i, list := range s.Lists {
-		if list.Name == name {
+		if list.ID == id {
 			s.Lists = slices.Delete(s.Lists, i, i+1)
 			return nil
 		}

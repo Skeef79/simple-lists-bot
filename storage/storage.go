@@ -12,7 +12,7 @@ type Storage interface {
 	GetListByName(string) (*List, error)
 	GetListById(uint64) (*List, error)
 	CreateList(string) (*List, error)
-	DeleteList(string) error
+	DeleteList(uint64) error
 	AddItemByListId(uint64, string) error
 	DeleteItemByIndex(uint64, int) error
 }
