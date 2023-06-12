@@ -36,8 +36,8 @@ func (b *bot) HelpCmd(upd tgbotapi.Update) {
 	message := `
 This bot currently supports the following commands:
 • /lists -- show all existing lists
-• /add_list -- create new list
-• /remove_list -- delete an existing list
+• /add_list -- add new list
+• /delete_list -- delete an existing list
 `
 
 	reply := tgbotapi.NewMessage(upd.Message.Chat.ID, message)
